@@ -1,4 +1,4 @@
-# 1.Cấu trúc vật lý của ổ đĩa
+# 1. Cấu trúc vật lý của ổ đĩa
 
 ### 1.1. Track - Side - Cylinder - Sector
 
@@ -23,3 +23,8 @@
 - Trong thực tế, hầu như không ai chú ý đến vấn đề này vì đã có lệnh Format của DOS. Tuy nhiên để giải thích để giải thích công việc cụ thể của lệnh này thì hầu như ít ai quan tâm đến. Có giải thích như sau:
 - - Với đĩa mềm: một đĩa cho dù đã được format lần nào hay chưa đều được đối xử "bình đẳng" như nhau, nghĩa là đầu tiền DOS sẽ tiến hành format vật lý, sau đó sẽ là format logic nhằm khởi tạo các vùng hệ thống và dữ liệu.
 - - Với đĩa cứng: mọi đĩa cứng trước khi đưa ra thị trường đều đã được format vật lý và đó không có một lí do vào để format lại nếu không thấy cần thiết. Đối với trường hợp này, DOS không cần phải format vât lý mà đơn giản chỉ tiến hành format logic. Trong trường hợp này, tốc độ format trên đĩa cứng sẽ rất nhanh chứ không ì ạch như trên đĩa mềm. Sau khi đã qua format, đĩa của chúng ta giờ đây đã sẵn sàng chứa dữ liệu.
+
+
+# 2. Cấu trúc Logic
+
+### 2.1. Boot Sector
