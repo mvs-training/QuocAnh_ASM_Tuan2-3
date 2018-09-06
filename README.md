@@ -28,3 +28,5 @@
 # 2. Cấu trúc Logic
 
 ### 2.1. Boot Sector
+
+- Luôn chiếm Sector đầu tiên trên Track 0, Side 1 của đĩa, tuy vậy, điều này cũng chỉ tuyệt đối đúng trên các đĩa mềm, còn đối với đĩa cứng, vị trí này phải nhường lại cho Partition table.
