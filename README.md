@@ -20,23 +20,52 @@
 ### 1.3. Format vật lý
 - Ghi toàn bộ địa chỉ Sector, các thông tin khác vào phần đầu của Sector được gọi là format vật lý hay format ở mức thấp, vì việc này được thực hiện chỉ bằng phần cứng của bộ điều khiển đĩa. Trong quá trình format, phần mềm sẽ bắt bộ điều khiển đĩa tiến hành format với những thông số về kích thước của 1 Sector, còn công việc còn lại tự bộ điều khiển đĩa phải làm.
 - Format vật lý phải được thực hiện trước khi đĩa được đưa vào sử dụng. Một quá trình độc lập thứ 2 - format logic - cũng phải được thực hiện ngay sau đó trước khi đĩa chuẩn bị chứa dữ liệu. Ở mức này, tùy theo cách tổ chức của từng hệ điều hành, nó sẽ chia đĩa thành từng vùng tương ứng.
-- Trong thực tế, hầu như không ai chú ý đến vấn đề này vì đã có lệnh Format của DOS. Tuy nhiên để giải thích để giải thích công việc cụ thể của lệnh này thì hầu như ít ai quan tâm đến. Có giải thích như sau:
-  - Với đĩa mềm: một đĩa cho dù đã được format lần nào hay chưa đều được đối xử "bình đẳng" như nhau, nghĩa là đầu tiền DOS sẽ tiến hành format vật lý, sau đó sẽ là format logic nhằm khởi tạo các vùng hệ thống và dữ liệu.
-  - Với đĩa cứng: mọi đĩa cứng trước khi đưa ra thị trường đều đã được format vật lý và đó không có một lí do vào để format lại nếu không thấy cần thiết. Đối với trường hợp này, DOS không cần phải format vât lý mà đơn giản chỉ tiến hành format logic. Trong trường hợp này, tốc độ format trên đĩa cứng sẽ rất nhanh chứ không ì ạch như trên đĩa mềm. Sau khi đã qua format, đĩa của chúng ta giờ đây đã sẵn sàng chứa dữ liệu.
-
 
 # 2. Cấu trúc Logic
 
 ### 2.1. Boot Sector
 
 - Luôn chiếm Sector đầu tiên trên Track 0, Side 1 của đĩa, tuy vậy, điều này cũng chỉ tuyệt đối đúng trên các đĩa mềm, còn đối với đĩa cứng, vị trí này phải nhường lại cho Partition table.
-- Boot sector này sẽ được đọc vào địa chỉ 0:07C00 sau khi máy thực hiện xong quá trình POST. Quyền điều khiển sẽ được trao lại cho đoạn mó nằm trong Boot sector. Đoạn mã này có nhiệm vụ tải các file hệ thống vào nếu có. Ngoài ra, Boot sector còn chứa một bảng tham số quan trọng đến cấu trúc đĩa, bảng này được ghi vào trong quá trình format logic đĩa và ngay cả đối với những đĩa không phải là đĩa boot được .
+- Boot sector này sẽ được đọc vào địa chỉ 0:07C00 sau khi máy thực hiện xong quá trình POST. Quyền điều khiển sẽ được trao lại cho đoạn mó nằm trong Boot sector. Đoạn mã này có nhiệm vụ tải các file hệ thống vào nếu có. Ngoài ra, Boot sector còn chứa một bảng tham số quan trọng đến cấu trúc đĩa, bảng này được ghi vào trong quá trình format logic đĩa và ngay cả đối với những đĩa không phải là đĩa boot được.
  
- ### 2.2. FAT
+ ### 2.2. FAT - Root directory
  
- - Đây là một trong hai cấu trúc quan trọng nhất (cấu trúc thứ hai là Root) mà DOS khởi tạo trong quá trình format logic đĩa. Cấu trúc này dùng để quản lí file trên đĩa cũng như cho biết sector nào đã hỏng. ở mức này DOS cũng đưa ra một số khái niệm mới :
+- FAT là hệ thống tập tin được sử dụng trên hệ điều hành MS-DOS và Windows
+- Có 3 loại FAT: FAT12, FAT16, FAT32  
+- Tổ chứng thành 2 vùng:
+    - Vùng Hệ thống: BootSector, bảng FAT, bảng thư mục gốc
+    - Vùng dữ liệu
+    
+- Root directory là cấu trúc bổ xung cho FAT và nằm ngay sau FAT. Nếu FAT nhằm mục đích quản lí ở mức thấp: từng sector, xem nó còn dùng được hay không, phân phối nếu cần thì Root directory không cần quan tâm mà chỉ nhằm quản lí file, một khái niệm cao hơn, mà không cần biết nó gồm những sector nào. Root có nhiệm vụ lưu giữ thông tin về file trên đĩa. Mỗi file được đặc trưng bởi một đầu vào trong Root Dir. Được tổ chức thành các entry 32 byte. Mỗi entry lưu trữ thông tin đăng ký các file, các thư mục con hoặc các nhãn đĩa.
+
+### 2.3. Partition table
+
+- Các thông tin về điểm bắt đầu và kích th-ớc của từng partition được phản ánh trong Partition table. Partition table này luôn tìm thấy ở sector đầu tiên trên đĩa (track 0, Side 0, sector 1) thayvì Boot sector (còn được gọi dưới tên Master boot). Sector này sẽ được đọc lên đầu tiên và trao quyền điều khiển, do đó, ngoài Partition table, Master boot còn chứa đoạn mã cho phép xác định partition nào đang hoạt động và chỉ duy nhất có một partition hoạt động mà thôi. Partition table nằm ở offset 01BE, mỗi partition được đặc trưng bằng một entry 16 byte phản ánh những thông tin về nó.
+
+
+# 3. Các tác vụ truy xuất đĩa
+
+### 3.1. Mức BIOS
+
+- Tương ứng với mức cấu trỳc vật lớ, bộ điều khiển đĩa cũng đưa ra cỏc khả năng cho phộp truy xuất ở mức vật lớ. Các chức năng này được thực hiện thụng qua ngắt 13h, với từng chức năng con trong thanh ghi AH. Các chức năng căn bản:
+
+    - Reset đĩa: Vào: AH=0, DL = số hiệu đĩa vật lí (0=đĩa A, 1=đĩa B ..... 080=đĩa cứng). Nếu DL là 80h hay 81h, bộ điều khiển đĩa cứng sẽ reset sau đó đến bộ điều khiển đĩa mềm. Ra: Không.
+    - Lấy mã lỗi của tác vụ đĩa gần nhất: Vào: AH = 1 DL = đĩa vật lí. Nếu DL=80h lấy lỗi của đĩa mềm DL=7Fh lấy lỗi của đĩa cứng. Ra: AL chứa mã lỗi. 
+    - Đọc sector: Vào: AH=2 DL=số hiệu đĩa (0=đĩa A, ..., 80h=đĩa cứng 0, 81h= đĩa cứng 1); DH=số đầu đọc ghi. CH= số track (Cylinder) CL=số sector. AL=số sector cần đọc/ghi Ra: CF=1 nếu có lỗi và mỰ lỗi chứa trong AH.
+    - Ghi sector: Vào: AH=3 ES:BX trỏ đến buffer chứa dữ liệu còn lại tương tự như chức năng đọc sector. Ra: CF=1 nếu có lỗi và mã lỗi chứa trong AH.
+    - Verify sector: Chức năng này cho phép kiểm tra CRC của các sector được chọn. Vào: AH=4 Ra: CF=1 nếu có lỗi và mã lỗi chứa trong AH. Vào: AH=4, các thanh ghi như C và D. Ra: CF=1 nếu có lỗi và mã lỗi chứa trong AH.
  
-     - a. Cluster: Khi đĩa được format fogic, đơn vị nhỏ nhất trên đĩa mà DOS có thể quản lí được là sector (theo DOS tự qui định - kích thước của một sector cũng đã cố định là 512 byte). Như thế, DOS có thể quản lí từng sector một xem nó còn dùng được hay không. Tuy nhiên, một đĩacó dung lượng cao (thường là đĩa cứng), số sector quá lớn không thể quản lí theo cách này mà thay vào đó, DOS đưa ra một khái niệm Cluster: là tập hợp nhiều sector, do đó, thay vì quảnquản lí nhiều sector, DOS bây giờ chỉ quản lí trên các cluster. Rõ ràng số lượng cluster sẽ giảm đi nhiều nếu ta tăng số lượng sector cho một cluster.
-  
-     - b. Khái niệm về FAT: Vấn đề phức tạp và then chốt của việc quản lí file trên đĩa là làm sao quản lí được sự thay đổi kích thước các file. Đây là một điều tất nhiên vì khi làm việc với máy, đòi hỏi ta phải truy xuất đến file trên đĩa.
+### 3.2. Mức DOS
+
+- Chức năng đọc và ghi đĩa dưới DOS được phân biệt bởi hai ngắt 25h và 26h, tham số đưa vào bây giờ chỉ còn là sector logic ,gọi các đĩa theo thứ tự các chữ cái từ A đến Z . 
+- Vào: AL=số đĩa (0=A, 1=B, ...), CX=số lượng sector cần đọc/ghi, DX=số sector logic bắt đầu, DS:BX=địa chỉ của buffer chứa dữ liệu cho tác vụ đọc/ghi.
+- Ra: Lỗi nếu CF=1, mã lỗi trong AX. Ngược lại, tác vụ đọc/ghi được thực hiện thành công, các giá trị thanh ghi đều bị phá hủy, trừ các thanh ghi phân đoạn và một word còn sót lại trên stack.
+
+### 3.3. Các giải thuật chuyển đổi định vị
+
+### 3.4. Phân tích Boot
+    
+
+
+
 
